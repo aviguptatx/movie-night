@@ -118,18 +118,18 @@ interface MovieResult {
   runtime?: number;
 }
 
-
 type Phase = 'submission' | 'voting' | 'winner';
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_KEY!;
+// Yes, plaintext API keys 😔, if someone wants to hack my movie nights they should find something better to do with their life
+const supabaseUrl = "https://mqnuasicmarimjpwdfej.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xbnVhc2ljbWFyaW1qcHdkZmVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzMTU0OTcsImV4cCI6MjA1MTg5MTQ5N30.2gm_VhLoZ4a5vwq5E1FQ_fYsZSDaMBRu9SDB24wje4o";
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY!;
 const TMDB_API_URL = 'https://api.themoviedb.org/3/search/movie';
+const TMDB_API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmYzEwNmZjNzJkYjhjN2M1NTNlNDQ1ZDkwMjE1N2ZhMyIsIm5iZiI6MTczNjMxMTYzMS4zNDgsInN1YiI6IjY3N2UwMzRmNjAxYWNmZTdiZDRlNWExMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.7C7pVoCqOMK_UG1vpxUpWptEJZUeK-0oezRcvM8vJr0";
 const TMDB_IMG_URL = 'https://image.tmdb.org/t/p/w500';
 const TMDB_MOVIE_URL = 'https://api.themoviedb.org/3/movie';
-const APARTMENT_PASSWORD = process.env.APARTMENT_PASSWORD!;
+const APARTMENT_PASSWORD = "1605";
 
 const calculateInstantRunoffWinner = (submissions: SubmissionWithDetails[]): SubmissionWithDetails | null => {
   if (submissions.length === 0) return null;
@@ -164,7 +164,7 @@ const calculateInstantRunoffWinner = (submissions: SubmissionWithDetails[]): Sub
       const minVotes = Math.min(...Array.from(voteCounts.values()));
       const losingSubmissionId = Array.from(voteCounts.entries())
         .find(([_, count]) => count === minVotes)?.[0];
-      
+
       remainingSubmissions = remainingSubmissions
         .filter(s => s.submission_id !== losingSubmissionId);
 
@@ -226,7 +226,7 @@ const MovieDisplay = ({ movieId }: { movieId: number }) => {
   return (
     <div className="flex gap-4">
       {movieDetails.poster_path && (
-        <img 
+        <img
           src={`${TMDB_IMG_URL}${movieDetails.poster_path}`}
           alt={movieDetails.title}
           className="w-24 h-36 object-cover rounded shrink-0"
@@ -281,7 +281,7 @@ const formatDateTime = (date: Date): string => {
 
 const getPhaseMessage = (phase: Phase): string => {
   const nextTime = getNextPhaseTime(phase);
-  
+
   switch (phase) {
     case 'submission':
       return `Submissions close ${formatDateTime(nextTime)}`;
@@ -296,9 +296,9 @@ const getPhaseMessage = (phase: Phase): string => {
 
 const TMDBAttribution = () => (
   <div className="flex flex-col items-center justify-center gap-2 py-8 mt-8 border-t">
-    <img 
-      src="/tmdb_logo.svg" 
-      alt="TMDB Logo" 
+    <img
+      src="tmdb_logo.svg"
+      alt="TMDB Logo"
       className="h-8"
     />
     <p className="text-sm text-gray-600 text-center">
@@ -430,7 +430,7 @@ function App() {
       if (userVotes.length === 0) {
         setUserVotes(submissionsWithDetails);
       }
-      
+
       if (currentUser) {
         await checkUserVotes(currentUser.user_id, getCurrentMovieNight());
       }
@@ -459,14 +459,14 @@ function App() {
         allSubmissions.reduce<Record<number, SubmissionWithDetails>>((acc, submission) => {
           const nightId = submission.night_id;
           const voteCount = submission.votes?.length || 0;
-          
+
           if (!acc[nightId] || voteCount > (acc[nightId].voteCount || 0)) {
             acc[nightId] = {
               ...submission,
               voteCount
             };
           }
-          
+
           return acc;
         }, {})
       ) as SubmissionWithDetails[];
@@ -593,7 +593,7 @@ function App() {
 
   const handleSubmitVotes = async () => {
     if (!currentUser) return;
-    
+
     try {
       const { error: deleteError } = await supabase
         .from('votes')
@@ -631,7 +631,7 @@ function App() {
         .in('submission_id', submissions.map(s => s.submission_id));
 
       if (error) throw error;
-      
+
       setHasVoted(data.length > 0);
       if (data.length > 0) {
         const submissionsWithRanks = [...submissions].sort((a, b) => {
@@ -652,7 +652,7 @@ function App() {
       setIsLoadingVotes(true);
       setHasVoted(false);
       setIsEditingVotes(false);
-      
+
       // Fetch fresh submissions first
       try {
         const currentNightId = getCurrentMovieNight();
@@ -741,7 +741,7 @@ function App() {
                   <div className="space-y-4">
                     {pastWinners.map((winner) => (
                       <div key={winner.night_id} className="p-4 border rounded">
-                        <MovieDisplay 
+                        <MovieDisplay
                           movieId={winner.movie_id}
                         />
                         <p className="text-sm text-gray-600 mt-2">
@@ -767,22 +767,22 @@ function App() {
                     </div>
                     {isAdminMode && (
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handlePhaseChange('submission')}
                         >
                           Submission
                         </Button>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handlePhaseChange('voting')}
                         >
                           Voting
                         </Button>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handlePhaseChange('winner')}
                         >
@@ -842,7 +842,7 @@ function App() {
                             </div>
                           )}
                         </div>
-                        <Button 
+                        <Button
                           onClick={handleSubmitMovie}
                           disabled={!selectedMovie}
                         >
@@ -854,7 +854,7 @@ function App() {
                       <div className="space-y-2">
                         {submissions.map((submission) => (
                           <div key={submission.submission_id} className="p-4 border rounded relative">
-                            <MovieDisplay 
+                            <MovieDisplay
                               movieId={submission.movie_id}
                             />
                             <p className="text-sm text-gray-600 mt-2">
@@ -885,7 +885,7 @@ function App() {
                       ) : hasVoted && !isEditingVotes ? (
                         <div className="text-center space-y-4">
                           <p className="text-lg">You have submitted your rankings for this movie night!</p>
-                          <Button 
+                          <Button
                             onClick={() => setIsEditingVotes(true)}
                             variant="outline"
                           >
@@ -935,7 +935,7 @@ function App() {
                               </div>
                             </SortableContext>
                           </DndContext>
-                          <Button 
+                          <Button
                             onClick={async () => {
                               await handleSubmitVotes();
                               setIsEditingVotes(false);
@@ -952,7 +952,7 @@ function App() {
                   {currentPhase === 'winner' && winner && (
                     <div>
                       <h2 className="text-2xl font-bold mb-2 text-center">🎬 Tonight's Movie 🎬</h2>
-                      <MovieDisplay 
+                      <MovieDisplay
                         movieId={winner.movie_id}
                       />
                       <p className="text-sm text-gray-600 mt-4">
